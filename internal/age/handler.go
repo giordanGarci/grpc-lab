@@ -15,6 +15,9 @@ func NewHandler(service *Service) *Handler {
 }
 
 func (h *Handler) GetAge(ctx context.Context, req *pb.AgeRequest) (*pb.AgeResponse, error) {
-	age, isAdult := h.service.GetAge(req.GetBirthdate())
+	age, isAdult, err := h.service.GetAge(req.GetBirthdate())
+	if err != nil {
+		return nil, err
+	}
 	return &pb.AgeResponse{Age: age, IsAdult: isAdult}, nil
 }
