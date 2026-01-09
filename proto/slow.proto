@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package slow;
+
+option go_package = "./pb";
+
+service SlowService {
+    rpc ProcessSlow (slowRequest) returns (slowResponse);
+}   
+
+message slowRequest {
+    string data = 1;
+}
+
+message slowResponse {
+    string result = 1;
+}

@@ -6,8 +6,8 @@ import (
 )
 
 type Handler struct {
-	service *Service
 	pb.UnimplementedAgeServiceServer
+	service *Service
 }
 
 func NewHandler(service *Service) *Handler {

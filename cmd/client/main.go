@@ -27,7 +27,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	helloClient := pb.NewHelloServiceClient(conn)
@@ -52,5 +52,16 @@ func main() {
 		log.Fatalf("could not get age: %v", err)
 	}
 	log.Printf("Age: %d, Is Adult: %t", ageResp.GetAge(), ageResp.GetIsAdult())
+
+	ctx_slqow, cancel_slow := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel_slow()
+
+	slowClient := pb.NewSlowServiceClient(conn)
+
+	slowResp, err := slowClient.ProcessSlow(ctx_slqow, &pb.SlowRequest{})
+	if err != nil {
+		log.Fatalf("could not process slow operation: %v", err)
+	}
+	log.Printf("Slow Operation Result: %s", slowResp.GetResult())
 
 }
