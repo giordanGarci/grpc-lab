@@ -6,6 +6,7 @@ import (
 
 	"grpc-lab/internal/age"
 	"grpc-lab/internal/greetings"
+	"grpc-lab/internal/interceptors"
 	pb "grpc-lab/pb"
 
 	"google.golang.org/grpc"
@@ -17,7 +18,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(interceptors.LoggerInterceptor),
+	)
 
 	greetingsService := greetings.NewService()
 	greetingsHandler := greetings.NewHandler(greetingsService)
