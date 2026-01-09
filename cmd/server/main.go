@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 
+	"grpc-lab/internal/age"
 	"grpc-lab/internal/greetings"
 	pb "grpc-lab/pb"
 
@@ -17,12 +18,15 @@ func main() {
 		panic(err)
 	}
 	grpcServer := grpc.NewServer()
-	fmt.Println("server grpc started on port 50051")
 
-	service := greetings.NewService()
-	handler := greetings.NewHandler(service)
+	greetingsService := greetings.NewService()
+	greetingsHandler := greetings.NewHandler(greetingsService)
 
-	pb.RegisterHelloServiceServer(grpcServer, handler)
+	ageService := age.NewService()
+	ageHandler := age.NewHandler(ageService)
+
+	pb.RegisterHelloServiceServer(grpcServer, greetingsHandler)
+	pb.RegisterAgeServiceServer(grpcServer, ageHandler)
 
 	if err := grpcServer.Serve(listener); err != nil {
 		panic(err)

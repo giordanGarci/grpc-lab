@@ -22,28 +22,35 @@ func main() {
 
 	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-	fmt.Println("client grpc started")
-
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
 
-	client := pb.NewHelloServiceClient(conn)
-
-	fmt.Println("created client for HelloService")
-
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
+	helloClient := pb.NewHelloServiceClient(conn)
+
 	// Contact the server and print out its response.
 	name := "Giordan"
-	r, err := client.SayHello(ctx, &pb.HelloRequest{
+	r, err := helloClient.SayHello(ctx, &pb.HelloRequest{
 		Name: name,
 	})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
 	log.Printf("Greeting: %s", r.GetMessage())
+
+	ageClient := pb.NewAgeServiceClient(conn)
+
+	birthdate := "2003-11-17"
+	ageResp, err := ageClient.GetAge(ctx, &pb.AgeRequest{
+		Birthdate: birthdate,
+	})
+	if err != nil {
+		log.Fatalf("could not get age: %v", err)
+	}
+	log.Printf("Age: %d, Is Adult: %t", ageResp.GetAge(), ageResp.GetIsAdult())
 
 }

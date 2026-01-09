@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package age;
+
+option go_package = "./pb";
+
+service AgeService {
+    rpc GetAge (AgeRequest) returns (AgeResponse);
+}
+
+message AgeRequest {
+    string birthdate = 1; // Format: "YYYY-MM-DD"
+}
+
+message AgeResponse {
+    int32 age = 1;
+    bool is_adult = 2;
+}
