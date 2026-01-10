@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"grpc-lab/internal/age"
+	chatbot "grpc-lab/internal/chat_bot"
 	"grpc-lab/internal/fibonacci"
 	"grpc-lab/internal/greetings"
 	"grpc-lab/internal/interceptors"
@@ -38,10 +39,13 @@ func main() {
 	fibonacciService := fibonacci.NewService()
 	fibonacciHandler := fibonacci.NewHandler(fibonacciService)
 
+	chatHandler := chatbot.NewHandler()
+
 	pb.RegisterHelloServiceServer(grpcServer, greetingsHandler)
 	pb.RegisterAgeServiceServer(grpcServer, ageHandler)
 	pb.RegisterSlowServiceServer(grpcServer, slowHandler)
 	pb.RegisterFibonacciServiceServer(grpcServer, fibonacciHandler)
+	pb.RegisterChatServiceServer(grpcServer, chatHandler)
 
 	if err := grpcServer.Serve(listener); err != nil {
 		panic(err)

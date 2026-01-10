@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package age;
+
+option go_package = "./pb";
+
+service ChatService {
+    rpc Chat(stream ChatMessage) returns (stream ChatResponse);
+}
+
+message ChatMessage {
+    string user = 1;
+    string text = 2;
+}
+
+message ChatResponse {
+    string user = 1;
+    string reply = 2;
+}
