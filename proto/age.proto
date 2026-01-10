@@ -6,6 +6,7 @@ option go_package = "./pb";
 
 service AgeService {
     rpc GetAge (AgeRequest) returns (AgeResponse);
+    rpc ComputeAverageAge (stream AverageAgeRequest) returns (AverageAgeResponse);
 }
 
 message AgeRequest {
@@ -15,4 +16,12 @@ message AgeRequest {
 message AgeResponse {
     int32 age = 1;
     bool is_adult = 2;
+}
+
+message AverageAgeRequest {
+    int32 age = 1;
+}
+
+message AverageAgeResponse {
+    double average = 1;
 }

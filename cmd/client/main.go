@@ -27,42 +27,42 @@ func main() {
 	}
 	defer conn.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// helloClient := pb.NewHelloServiceClient(conn)
+	helloClient := pb.NewHelloServiceClient(conn)
 
-	// // Contact the server and print out its response.
-	// name := "Giordan"
-	// r, err := helloClient.SayHello(ctx, &pb.HelloRequest{
-	// 	Name: name,
-	// })
-	// if err != nil {
-	// 	log.Fatalf("could not greet: %v", err)
-	// }
-	// log.Printf("Greeting: %s", r.GetMessage())
+	// Contact the server and print out its response.
+	name := "Giordan"
+	r, err := helloClient.SayHello(ctx, &pb.HelloRequest{
+		Name: name,
+	})
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+	log.Printf("Greeting: %s", r.GetMessage())
 
-	// ageClient := pb.NewAgeServiceClient(conn)
+	ageClient := pb.NewAgeServiceClient(conn)
 
-	// birthdate := "2003-11-17"
-	// ageResp, err := ageClient.GetAge(ctx, &pb.AgeRequest{
-	// 	Birthdate: birthdate,
-	// })
-	// if err != nil {
-	// 	log.Fatalf("could not get age: %v", err)
-	// }
-	// log.Printf("Age: %d, Is Adult: %t", ageResp.GetAge(), ageResp.GetIsAdult())
+	birthdate := "2003-11-17"
+	ageResp, err := ageClient.GetAge(ctx, &pb.AgeRequest{
+		Birthdate: birthdate,
+	})
+	if err != nil {
+		log.Fatalf("could not get age: %v", err)
+	}
+	log.Printf("Age: %d, Is Adult: %t", ageResp.GetAge(), ageResp.GetIsAdult())
 
-	// ctx_slqow, cancel_slow := context.WithTimeout(context.Background(), 5*time.Second)
-	// defer cancel_slow()
+	ctx_slqow, cancel_slow := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel_slow()
 
-	// slowClient := pb.NewSlowServiceClient(conn)
+	slowClient := pb.NewSlowServiceClient(conn)
 
-	// slowResp, err := slowClient.ProcessSlow(ctx_slqow, &pb.SlowRequest{})
-	// if err != nil {
-	// 	log.Fatalf("could not process slow operation: %v", err)
-	// }
-	// log.Printf("Slow Operation Result: %s", slowResp.GetResult())
+	slowResp, err := slowClient.ProcessSlow(ctx_slqow, &pb.SlowRequest{})
+	if err != nil {
+		log.Fatalf("could not process slow operation: %v", err)
+	}
+	log.Printf("Slow Operation Result: %s", slowResp.GetResult())
 
 	fibClient := pb.NewFibonacciServiceClient(conn)
 
@@ -77,5 +77,24 @@ func main() {
 		}
 		log.Printf("Fibonacci Number: %d", fibResp.GetValue())
 	}
+
+	avgAgeClient := pb.NewAgeServiceClient(conn)
+	avgAgeStream, err := avgAgeClient.ComputeAverageAge(ctx)
+
+	if err != nil {
+		log.Fatalf("could not compute average age: %v", err)
+	}
+	ages := []int32{25, 30, 22, 28, 35}
+	for _, age := range ages {
+		err := avgAgeStream.Send(&pb.AverageAgeRequest{Age: age})
+		if err != nil {
+			log.Fatalf("could not send age: %v", err)
+		}
+	}
+	avgResp, err := avgAgeStream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("could not receive average age: %v", err)
+	}
+	log.Printf("Final average Age: %.1f", avgResp.GetAverage())
 
 }

@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AgeService_GetAge_FullMethodName = "/age.AgeService/GetAge"
+	AgeService_GetAge_FullMethodName            = "/age.AgeService/GetAge"
+	AgeService_ComputeAverageAge_FullMethodName = "/age.AgeService/ComputeAverageAge"
 )
 
 // AgeServiceClient is the client API for AgeService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AgeServiceClient interface {
 	GetAge(ctx context.Context, in *AgeRequest, opts ...grpc.CallOption) (*AgeResponse, error)
+	ComputeAverageAge(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[AverageAgeRequest, AverageAgeResponse], error)
 }
 
 type ageServiceClient struct {
@@ -47,11 +49,25 @@ func (c *ageServiceClient) GetAge(ctx context.Context, in *AgeRequest, opts ...g
 	return out, nil
 }
 
+func (c *ageServiceClient) ComputeAverageAge(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[AverageAgeRequest, AverageAgeResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AgeService_ServiceDesc.Streams[0], AgeService_ComputeAverageAge_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[AverageAgeRequest, AverageAgeResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgeService_ComputeAverageAgeClient = grpc.ClientStreamingClient[AverageAgeRequest, AverageAgeResponse]
+
 // AgeServiceServer is the server API for AgeService service.
 // All implementations must embed UnimplementedAgeServiceServer
 // for forward compatibility.
 type AgeServiceServer interface {
 	GetAge(context.Context, *AgeRequest) (*AgeResponse, error)
+	ComputeAverageAge(grpc.ClientStreamingServer[AverageAgeRequest, AverageAgeResponse]) error
 	mustEmbedUnimplementedAgeServiceServer()
 }
 
@@ -64,6 +80,9 @@ type UnimplementedAgeServiceServer struct{}
 
 func (UnimplementedAgeServiceServer) GetAge(context.Context, *AgeRequest) (*AgeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAge not implemented")
+}
+func (UnimplementedAgeServiceServer) ComputeAverageAge(grpc.ClientStreamingServer[AverageAgeRequest, AverageAgeResponse]) error {
+	return status.Error(codes.Unimplemented, "method ComputeAverageAge not implemented")
 }
 func (UnimplementedAgeServiceServer) mustEmbedUnimplementedAgeServiceServer() {}
 func (UnimplementedAgeServiceServer) testEmbeddedByValue()                    {}
@@ -104,6 +123,13 @@ func _AgeService_GetAge_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgeService_ComputeAverageAge_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(AgeServiceServer).ComputeAverageAge(&grpc.GenericServerStream[AverageAgeRequest, AverageAgeResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AgeService_ComputeAverageAgeServer = grpc.ClientStreamingServer[AverageAgeRequest, AverageAgeResponse]
+
 // AgeService_ServiceDesc is the grpc.ServiceDesc for AgeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -116,6 +142,12 @@ var AgeService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AgeService_GetAge_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ComputeAverageAge",
+			Handler:       _AgeService_ComputeAverageAge_Handler,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "proto/age.proto",
 }
