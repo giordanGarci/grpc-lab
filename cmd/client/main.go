@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"grpc-lab/pb"
-	"io"
 	"log"
 	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 func main() {
@@ -28,20 +28,24 @@ func main() {
 	}
 	defer conn.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	md := metadata.Pairs("authorization", "your-auth-token")
+
+	ctxWithMeta := metadata.NewOutgoingContext(context.Background(), md)
+
+	ctx, cancel := context.WithTimeout(ctxWithMeta, 1*time.Minute)
 	defer cancel()
 
-	// helloClient := pb.NewHelloServiceClient(conn)
+	helloClient := pb.NewHelloServiceClient(conn)
 
-	// // Contact the server and print out its response.
-	// name := "Giordan"
-	// r, err := helloClient.SayHello(ctx, &pb.HelloRequest{
-	// 	Name: name,
-	// })
-	// if err != nil {
-	// 	log.Fatalf("could not greet: %v", err)
-	// }
-	// log.Printf("Greeting: %s", r.GetMessage())
+	// Contact the server and print out its response.
+	name := "Giordan"
+	r, err := helloClient.SayHello(ctx, &pb.HelloRequest{
+		Name: name,
+	})
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+	log.Printf("Greeting: %s", r.GetMessage())
 
 	// ageClient := pb.NewAgeServiceClient(conn)
 
@@ -98,41 +102,41 @@ func main() {
 	// }
 	// log.Printf("Final average Age: %.1f", avgResp.GetAverage())
 
-	chatClient := pb.NewChatServiceClient(conn)
-	chatStream, err := chatClient.Chat(ctx)
+	// chatClient := pb.NewChatServiceClient(conn)
+	// chatStream, err := chatClient.Chat(ctx)
 
-	if err != nil {
-		log.Fatalf("could not start chat: %v", err)
-	}
+	// if err != nil {
+	// 	log.Fatalf("could not start chat: %v", err)
+	// }
 
-	// Receive messages in a separate goroutine
-	go func() {
-		for {
-			resp, err := chatStream.Recv()
-			if err == io.EOF {
-				fmt.Println("Chat ended by server")
-				break
-			}
-			if err != nil {
-				log.Fatalf("error receiving chat message: %v", err)
-				break
-			}
-			fmt.Printf("Chat bot reply from %s: %s\n", resp.GetUser(), resp.GetReply())
-		}
-	}()
+	// // Receive messages in a separate goroutine
+	// go func() {
+	// 	for {
+	// 		resp, err := chatStream.Recv()
+	// 		if err == io.EOF {
+	// 			fmt.Println("Chat ended by server")
+	// 			break
+	// 		}
+	// 		if err != nil {
+	// 			log.Fatalf("error receiving chat message: %v", err)
+	// 			break
+	// 		}
+	// 		fmt.Printf("Chat bot reply from %s: %s\n", resp.GetUser(), resp.GetReply())
+	// 	}
+	// }()
 
-	// main loop to send messages
-	messages := []string{"Hello!", "How are you?", "Tell me a joke.", "Goodbye!"}
-	for _, msg := range messages {
-		fmt.Printf("sending: %s\n", msg)
-		chatStream.Send(&pb.ChatMessage{
-			User: "Giordan",
-			Text: msg,
-		})
-		time.Sleep(1 * time.Second)
-	}
+	// // main loop to send messages
+	// messages := []string{"Hello!", "How are you?", "Tell me a joke.", "Goodbye!"}
+	// for _, msg := range messages {
+	// 	fmt.Printf("sending: %s\n", msg)
+	// 	chatStream.Send(&pb.ChatMessage{
+	// 		User: "Giordan",
+	// 		Text: msg,
+	// 	})
+	// 	time.Sleep(1 * time.Second)
+	// }
 
-	chatStream.CloseSend()
-	time.Sleep(500 * time.Millisecond)
+	// chatStream.CloseSend()
+	// time.Sleep(500 * time.Millisecond)
 
 }
