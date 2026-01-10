@@ -7,6 +7,7 @@
 package pb
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -113,13 +114,13 @@ var File_proto_hello_proto protoreflect.FileDescriptor
 
 const file_proto_hello_proto_rawDesc = "" +
 	"\n" +
-	"\x11proto/hello.proto\x12\x05hello\"\"\n" +
+	"\x11proto/hello.proto\x12\x05hello\x1a\x1cgoogle/api/annotations.proto\"\"\n" +
 	"\fHelloRequest\x12\x12\n" +
 	"\x04Name\x18\x01 \x01(\tR\x04Name\")\n" +
 	"\rHelloResponse\x12\x18\n" +
-	"\aMessage\x18\x01 \x01(\tR\aMessage2E\n" +
-	"\fHelloService\x125\n" +
-	"\bSayHello\x12\x13.hello.HelloRequest\x1a\x14.hello.HelloResponseB\x06Z\x04./pbb\x06proto3"
+	"\aMessage\x18\x01 \x01(\tR\aMessage2_\n" +
+	"\fHelloService\x12O\n" +
+	"\bSayHello\x12\x13.hello.HelloRequest\x1a\x14.hello.HelloResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/v1/hello/{Name}B\x06Z\x04./pbb\x06proto3"
 
 var (
 	file_proto_hello_proto_rawDescOnce sync.Once
