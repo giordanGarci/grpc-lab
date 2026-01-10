@@ -13,6 +13,8 @@ import (
 	pb "grpc-lab/pb"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func main() {
@@ -28,6 +30,11 @@ func main() {
 			interceptors.AuthInterceptor),
 		grpc.StreamInterceptor(interceptors.StreamLoggerInterceptor),
 	)
+
+	healthServer := health.NewServer()
+	healthpb.RegisterHealthServer(grpcServer, healthServer)
+
+	healthServer.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
 
 	greetingsService := greetings.NewService()
 	greetingsHandler := greetings.NewHandler(greetingsService)
