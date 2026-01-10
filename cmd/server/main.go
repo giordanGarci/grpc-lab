@@ -23,7 +23,9 @@ func main() {
 		panic(err)
 	}
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptors.LoggerInterceptor),
+		grpc.ChainUnaryInterceptor(
+			interceptors.LoggerInterceptor,
+			interceptors.AuthInterceptor),
 		grpc.StreamInterceptor(interceptors.StreamLoggerInterceptor),
 	)
 
