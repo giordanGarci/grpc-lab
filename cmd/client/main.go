@@ -27,41 +27,55 @@ func main() {
 	}
 	defer conn.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	helloClient := pb.NewHelloServiceClient(conn)
+	// helloClient := pb.NewHelloServiceClient(conn)
 
-	// Contact the server and print out its response.
-	name := "Giordan"
-	r, err := helloClient.SayHello(ctx, &pb.HelloRequest{
-		Name: name,
-	})
+	// // Contact the server and print out its response.
+	// name := "Giordan"
+	// r, err := helloClient.SayHello(ctx, &pb.HelloRequest{
+	// 	Name: name,
+	// })
+	// if err != nil {
+	// 	log.Fatalf("could not greet: %v", err)
+	// }
+	// log.Printf("Greeting: %s", r.GetMessage())
+
+	// ageClient := pb.NewAgeServiceClient(conn)
+
+	// birthdate := "2003-11-17"
+	// ageResp, err := ageClient.GetAge(ctx, &pb.AgeRequest{
+	// 	Birthdate: birthdate,
+	// })
+	// if err != nil {
+	// 	log.Fatalf("could not get age: %v", err)
+	// }
+	// log.Printf("Age: %d, Is Adult: %t", ageResp.GetAge(), ageResp.GetIsAdult())
+
+	// ctx_slqow, cancel_slow := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel_slow()
+
+	// slowClient := pb.NewSlowServiceClient(conn)
+
+	// slowResp, err := slowClient.ProcessSlow(ctx_slqow, &pb.SlowRequest{})
+	// if err != nil {
+	// 	log.Fatalf("could not process slow operation: %v", err)
+	// }
+	// log.Printf("Slow Operation Result: %s", slowResp.GetResult())
+
+	fibClient := pb.NewFibonacciServiceClient(conn)
+
+	fibStream, err := fibClient.GetFibonacci(ctx, &pb.FibonacciRequest{N: 10})
 	if err != nil {
-		log.Fatalf("could not greet: %v", err)
+		log.Fatalf("could not get fibonacci numbers: %v", err)
 	}
-	log.Printf("Greeting: %s", r.GetMessage())
-
-	ageClient := pb.NewAgeServiceClient(conn)
-
-	birthdate := "2003-11-17"
-	ageResp, err := ageClient.GetAge(ctx, &pb.AgeRequest{
-		Birthdate: birthdate,
-	})
-	if err != nil {
-		log.Fatalf("could not get age: %v", err)
+	for {
+		fibResp, err := fibStream.Recv()
+		if err != nil {
+			break
+		}
+		log.Printf("Fibonacci Number: %d", fibResp.GetValue())
 	}
-	log.Printf("Age: %d, Is Adult: %t", ageResp.GetAge(), ageResp.GetIsAdult())
-
-	ctx_slqow, cancel_slow := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel_slow()
-
-	slowClient := pb.NewSlowServiceClient(conn)
-
-	slowResp, err := slowClient.ProcessSlow(ctx_slqow, &pb.SlowRequest{})
-	if err != nil {
-		log.Fatalf("could not process slow operation: %v", err)
-	}
-	log.Printf("Slow Operation Result: %s", slowResp.GetResult())
 
 }

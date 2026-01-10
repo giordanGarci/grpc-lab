@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"grpc-lab/internal/age"
+	"grpc-lab/internal/fibonacci"
 	"grpc-lab/internal/greetings"
 	"grpc-lab/internal/interceptors"
 	"grpc-lab/internal/slow"
@@ -22,6 +23,7 @@ func main() {
 	}
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptors.LoggerInterceptor),
+		grpc.StreamInterceptor(interceptors.StreamLoggerInterceptor),
 	)
 
 	greetingsService := greetings.NewService()
@@ -33,9 +35,13 @@ func main() {
 	slowService := slow.NewService()
 	slowHandler := slow.NewHandler(slowService)
 
+	fibonacciService := fibonacci.NewService()
+	fibonacciHandler := fibonacci.NewHandler(fibonacciService)
+
 	pb.RegisterHelloServiceServer(grpcServer, greetingsHandler)
 	pb.RegisterAgeServiceServer(grpcServer, ageHandler)
 	pb.RegisterSlowServiceServer(grpcServer, slowHandler)
+	pb.RegisterFibonacciServiceServer(grpcServer, fibonacciHandler)
 
 	if err := grpcServer.Serve(listener); err != nil {
 		panic(err)

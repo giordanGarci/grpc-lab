@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package fibonacci;
+
+option go_package = "./pb";
+
+service FibonacciService {
+    rpc GetFibonacci(FibonacciRequest) returns (stream FibonacciResponse);
+}
+
+message FibonacciRequest {
+    int32 n = 1;
+}
+
+message FibonacciResponse {
+    int64 value = 1;
+}
+

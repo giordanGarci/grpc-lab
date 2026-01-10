@@ -27,3 +27,21 @@ func LoggerInterceptor(
 
 	return resp, err
 }
+
+func StreamLoggerInterceptor(
+	srv interface{},
+	ss grpc.ServerStream,
+	info *grpc.StreamServerInfo,
+	handler grpc.StreamHandler,
+) error {
+	start := time.Now()
+	err := handler(srv, ss)
+	duration := time.Since(start)
+
+	if err != nil {
+		log.Printf("❌ STREAM METHOD: %s | DURATION: %v | ERROR: %v", info.FullMethod, duration, err)
+	} else {
+		log.Printf("✅ STREAM METHOD: %s | DURATION: %v", info.FullMethod, duration)
+	}
+	return err
+}
